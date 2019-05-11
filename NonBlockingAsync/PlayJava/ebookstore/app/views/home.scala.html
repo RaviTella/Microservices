@@ -1,0 +1,170 @@
+@(recommendations: List[model.Item], viewedItems: List[model.Item],customers: List[model.Customer], cartItems: List[model.Item] )
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="author" content="Bootstrap-ecommerce by Vosidiy">
+
+
+	<link rel="shortcut icon" type="image/x-icon" href='@routes.Assets.versioned("assets/images/favicon.ico")'>
+
+	<link rel="stylesheet" media="screen" href='@routes.Assets.versioned("assets/js/jquery-2.0.0.min.js")'/>
+<!-- jQuery -->
+<script src='@routes.Assets.versioned("assets/js/jquery-2.0.0.min.js")' type="text/javascript"></script>
+
+<!-- Bootstrap4 files-->
+<script src='@routes.Assets.versioned("assets/js/bootstrap.bundle.min.js")' type="text/javascript"></script>
+<link href='@routes.Assets.versioned("assets/css/bootstrap.css")' rel="stylesheet" type="text/css"/>
+
+<!-- Font awesome 5 -->
+<link href='@routes.Assets.versioned("assets/fonts/fontawesome/css/fontawesome-all.min.css")' type="text/css" rel="stylesheet">
+
+<!-- plugin: fancybox  -->
+<script src='@routes.Assets.versioned("assets/plugins/fancybox/fancybox.min.js")' type="text/javascript"></script>
+<link href='@routes.Assets.versioned("assets/plugins/fancybox/fancybox.min.css")' type="text/css" rel="stylesheet">
+
+<!-- plugin: owl carousel  -->
+<link href='@routes.Assets.versioned("assets/plugins/owlcarousel/assets/owl.carousel.min.css")' rel="stylesheet">
+<link href='@routes.Assets.versioned("assets/plugins/owlcarousel/assets/owl.theme.default.css")' rel="stylesheet">
+<script src='@routes.Assets.versioned("assets/plugins/owlcarousel/owl.carousel.min.js")'></script>
+
+<!-- custom style -->
+<link href='@routes.Assets.versioned("assets/css/ui.css")' rel="stylesheet" type="text/css"/>
+<link href='@routes.Assets.versioned("assets/css/responsive.css")' rel="stylesheet" media="only screen and (max-width: 1200px)" />
+
+<!-- custom javascript -->
+<script src='@routes.Assets.versioned("assets/js/script.js")' type="text/javascript"></script>
+
+<script type="text/javascript">
+/// some script
+
+// jquery ready start
+$(document).ready(function() {
+	// jQuery code
+
+});
+// jquery end
+</script>
+
+</head>
+<body>
+<header class="section-header">
+
+
+<section class="header-main shadow-sm">
+	<div class="container">
+<div class="row-sm align-items-center">
+	<div class="col-lg-4-24 col-sm-3">
+	<div class="category-wrap dropdown py-1">
+		<button type="button" class="btn btn-light  dropdown-toggle" data-toggle="dropdown" ><i class="fa fa-bars"></i> Categories</button>
+
+	</div>
+	</div>
+	<div class="col-lg-11-24 col-sm-8">
+			<form action="#" class="py-1">
+				<div class="input-group w-100">
+					<select class="custom-select"  name="category_name">
+						<option value="">All type</option>
+						<option value="">Special</option>
+						<option value="">Only best</option>
+						<option value="">Latest</option>
+					</select>
+				    <input type="text" class="form-control" style="width:50%;" placeholder="Search">
+				    <div class="input-group-append">
+				      <button class="btn btn-warning" type="submit">
+				        <i class="fa fa-search"></i> Search
+				      </button>
+				    </div>
+			    </div>
+			</form> <!-- search-wrap .end// -->
+	</div> <!-- col.// -->
+	<div class="col-lg-9-24 col-sm-12">
+		<div class="widgets-wrap float-right row no-gutters py-1">
+			<div class="col-auto">
+			<div class="widget-header dropdown">
+				<a href="#" data-toggle="dropdown" data-offset="20,10">
+					<div class="icontext">
+						<div class="icon-wrap"><i class="text-warning icon-sm fa fa-user"></i></div>
+						<div class="text-wrap text-dark">
+                            @customers.get(0).name<br>
+						</div>
+					</div>
+				</a>
+			</div>  <!-- widget-header .// -->
+			</div> <!-- col.// -->
+			<div class="col-auto">
+				<a href="#" class="widget-header">
+					<div class="icontext">
+						<div class="icon-wrap">
+							<span class="text-warning icon-sm fa fa-shopping-cart">@cartItems.size()</span>
+							</div>
+					</div>
+				</a>
+			</div> <!-- col.// -->
+			<div class="col-auto">
+				<a href="#" class="widget-header">
+					<div class="icontext">
+						<div class="icon-wrap">
+							<span class="text-warning icon-sm  fa fa-coins">980</span>
+
+						</div>
+					</div>
+				</a>
+			</div> <!-- col.// -->
+		</div> <!-- widgets-wrap.// row.// -->
+	</div> <!-- col.// -->
+</div> <!-- row.// -->
+	</div> <!-- container.// -->
+</section> <!-- header-main .// -->
+</header> <!-- section-header.// -->
+
+<!-- ========================= SECTION CONTENT ========================= -->
+<section class="section-content bg padding-y-sm">
+<div class="container">
+
+
+
+<div class="padding-y-sm">
+<span>Recently viewed</span>
+</div>
+
+<div class="row-sm">
+	@for(viewedItem <- viewedItems) {
+<div class="col-md-3 col-sm-6">
+	<figure class="card card-product">
+		<div class="img-wrap"> <img src="@viewedItem.imageUrl"></div>
+		<figcaption class="info-wrap">
+			<a href="#" class="title">@viewedItem.name</a>
+			<div class="price-wrap">
+				<span class="price-new">$@viewedItem.price</span>
+				<del class="price-old">$81</del>
+			</div> <!-- price-wrap.// -->
+		</figcaption>
+	</figure> <!-- card // -->
+</div> <!-- col // -->
+}
+</div> <!-- row.// -->
+	<div class="padding-y-sm">
+		<span>Recommended for you</span>
+	</div>
+	<div class="row-sm">
+		@for(recommendation <- recommendations) {
+		<div class="col-md-3 col-sm-6">
+			<figure class="card card-product">
+				<div class="img-wrap"> <img src="@recommendation.imageUrl"></div>
+				<figcaption class="info-wrap">
+					<a href="#" class="title">$@recommendation.name</a>
+					<div class="price-wrap">
+						<span class="price-new">$@recommendation.price</span>
+						<del class="price-old">$69</del>
+					</div> <!-- price-wrap.// -->
+				</figcaption>
+			</figure> <!-- card // -->
+		</div> <!-- col // -->
+}
+	</div> <!-- row.// -->
+</div><!-- container // -->
+</section>
+
+</body>
+</html>
