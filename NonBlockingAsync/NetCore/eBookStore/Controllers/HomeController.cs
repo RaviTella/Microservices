@@ -20,13 +20,13 @@ namespace eBookStore.Controllers
             var cartTask = Task.Run(() => Client.GetStringAsync("http://52.191.234.203:9000/cart/customer/1001"));
             var customerTask = Task.Run(() => Client.GetStringAsync("http://52.190.26.105:9000/customer/1001"));            
 
-            await Task.WhenAll(recommendationsTask, viewedItemsTask,cartTask,customerTask);
+           var response = await Task.WhenAll(recommendationsTask, viewedItemsTask,cartTask,customerTask);
             CompositeModel model = new CompositeModel
             {
-                Recommendations = JsonConvert.DeserializeObject<IEnumerable<Item>>(recommendationsTask.Result),
-                ViewedItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(viewedItemsTask.Result),
-                CartItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(cartTask.Result),
-                Customers = JsonConvert.DeserializeObject<IEnumerable<Customer>>(customerTask.Result)
+                Recommendations = JsonConver.DeserializeObject<IEnumerable<Item>>(response[0]),
+                ViewedItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[1]),
+                CartItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[2]),
+                Customers = JsonConvert.DeserializeObject<IEnumerable<Customer>>(response[3])
             };
             return View(model);
         }
