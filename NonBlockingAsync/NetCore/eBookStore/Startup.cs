@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
+using System.Net.Http;
 
 namespace eBookStore
 {
@@ -60,5 +63,7 @@ namespace eBookStore
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
     }
+    
 }

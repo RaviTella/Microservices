@@ -11,6 +11,7 @@ namespace eBookStore.Models
         public IEnumerable<Item> ViewedItems { get; set; }
         public IEnumerable<Customer> Customers { get; set; }
         public IEnumerable<Item> CartItems { get; set; }
+        public string RecommendationsResposne {get;set;}
 
 
     }

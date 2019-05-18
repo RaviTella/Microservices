@@ -93,6 +93,12 @@
                     </div> <!-- col // -->
                 }
             </div> <!-- row.// -->
+
+            @if (Model.Recommendations.First().id.Equals("-1")) {
+              <div class="padding-y-sm">
+		      <span>Recommendations not available</span>
+	          </div>
+            } else {
             <div class="padding-y-sm">
                 <span>Recommended for you</span>
             </div>
@@ -112,7 +118,9 @@
                         </figure> <!-- card // -->
                     </div> <!-- col // -->
                 }
-            </div> <!-- row.// -->
+                </div> <!-- row.// -->
+            }
+            
         </div><!-- container // -->
     </section>
 

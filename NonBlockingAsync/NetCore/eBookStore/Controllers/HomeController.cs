@@ -7,23 +7,54 @@ using Microsoft.AspNetCore.Mvc;
 using eBookStore.Models;
 using System.Net.Http;
 using Newtonsoft.Json;
+using Polly.CircuitBreaker;
+using Polly.Fallback;
+using Polly;
+using Polly.Wrap;
 
 namespace eBookStore.Controllers
 {
     public class HomeController : Controller
     {
         private static HttpClient Client = new HttpClient();
-        public async Task<IActionResult>  Index()
+        private AsyncCircuitBreakerPolicy breaker;
+        private AsyncPolicyWrap<string> fallback;
+
+        public HomeController()
         {
-            var recommendationsTask = Task.Run(()=>Client.GetStringAsync("http://52.191.234.154:9000/recommendations/customer/1001"));
+            breaker = Policy
+     .Handle<Exception>()
+     .CircuitBreakerAsync(
+         exceptionsAllowedBeforeBreaking: 2,
+         durationOfBreak: TimeSpan.FromMinutes(1)
+     );
+
+            fallback = Policy<string>
+           .Handle<Exception>()
+           .FallbackAsync(cancellationToken => fallbackAction(),
+        ex =>
+        {
+            return Task.CompletedTask;
+        }
+    )
+           .WrapAsync(breaker);
+
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var recommendationsTask = fallback.ExecuteAsync(() => Task.Run(() => Client.GetStringAsync("http://localhost:9001/recommendations/customer/1001")));
+            //var recommendationsTask = Task.Run(() => Client.GetStringAsync("http://localhost:9001/recommendations/customer/1001"));
             var viewedItemsTask = Task.Run(() => Client.GetStringAsync("http://52.224.136.196:9000/viewedItems/customer/1001"));
             var cartTask = Task.Run(() => Client.GetStringAsync("http://52.191.234.203:9000/cart/customer/1001"));
-            var customerTask = Task.Run(() => Client.GetStringAsync("http://52.190.26.105:9000/customer/1001"));            
+            var customerTask = Task.Run(() => Client.GetStringAsync("http://52.190.26.105:9000/customer/1001"));
 
-           var response = await Task.WhenAll(recommendationsTask, viewedItemsTask,cartTask,customerTask);
+            var response = await Task.WhenAll(recommendationsTask, viewedItemsTask, cartTask, customerTask);
+            Console.WriteLine(response[0]);
             CompositeModel model = new CompositeModel
-            {
-                Recommendations = JsonConver.DeserializeObject<IEnumerable<Item>>(response[0]),
+            {        
+                       
+                Recommendations = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[0]),
                 ViewedItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[1]),
                 CartItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[2]),
                 Customers = JsonConvert.DeserializeObject<IEnumerable<Customer>>(response[3])
@@ -31,29 +62,10 @@ namespace eBookStore.Controllers
             return View(model);
         }
 
-        public IActionResult About()
+        public Task<string> fallbackAction()
         {
-            ViewData["Message"] = "Your application description page.";
-
-            return View();
+            return Task.Run(() => "["+JsonConvert.SerializeObject(new Item{id="-1"})+"]"); ;
         }
 
-        public IActionResult Contact()
-        {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-    }
+     }
 }

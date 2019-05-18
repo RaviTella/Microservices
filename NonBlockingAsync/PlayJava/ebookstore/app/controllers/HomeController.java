@@ -8,8 +8,6 @@ import net.jodah.failsafe.Failsafe;
 import net.jodah.failsafe.Fallback;
 import net.jodah.failsafe.RetryPolicy;
 import org.mockito.Mockito;
-import play.data.Form;
-import play.data.FormFactory;
 
 import play.libs.concurrent.HttpExecutionContext;
 import play.libs.ws.WSClient;
@@ -23,12 +21,9 @@ import java.net.ConnectException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static play.libs.Scala.asScala;
 import com.typesafe.config.Config;
@@ -41,7 +36,7 @@ public class HomeController extends Controller {
   private final CircuitBreaker<Object> breaker;
   private final Fallback<Object> fallback;
   private final RetryPolicy<Object> retryPolicy;
-  private final String failbackMessage = "{\"message\":\"failback\"}";
+  private final String fallbackMessage = "{\"message\":\"fallback\"}";
 
   @Inject
   public HomeController(Config config, HttpExecutionContext ec, WSClient ws)
@@ -117,8 +112,8 @@ public class HomeController extends Controller {
             })
         .thenApplyAsync(
             wsResponse -> {
-              if (wsResponse.asJson().toString().equals(failbackMessage)) {
-                return ok(views.html.home1.render(new Response<Item>("failback", new ArrayList())));
+              if (wsResponse.asJson().toString().equals(fallbackMessage)) {
+                return ok(views.html.home1.render(new Response<Item>("fallback", new ArrayList())));
               } else {
                 return ok(
                     views.html.home1.render(
@@ -137,7 +132,7 @@ public class HomeController extends Controller {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonNode = null;
     try {
-      jsonNode = mapper.readTree(failbackMessage);
+      jsonNode = mapper.readTree(fallbackMessage);
     } catch (IOException e) {
       e.printStackTrace();
     }
