@@ -48,7 +48,7 @@ public class HomeController extends Controller {
         new CircuitBreaker<>()
             .handle(TimeoutException.class)
             .handle(ConnectException.class)
-            .withFailureThreshold(2)
+            .withFailureThreshold(3)
             .withSuccessThreshold(3)
             .withDelay(Duration.ofMinutes(1))
             .onClose(() -> System.out.println("Closed"))
