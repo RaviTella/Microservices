@@ -2,68 +2,61 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using eBookStore.Models;
 using System.Net.Http;
+using System.Threading.Tasks;
+using eBookStore.Models;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Polly;
 using Polly.CircuitBreaker;
 using Polly.Fallback;
-using Polly;
 using Polly.Wrap;
 
-namespace eBookStore.Controllers
-{
-    public class HomeController : Controller
-    {
+namespace eBookStore.Controllers {
+    public class HomeController : Controller {
         private static HttpClient client;
         private AsyncCircuitBreakerPolicy breaker;
         private AsyncPolicyWrap<string> fallback;
 
-        public HomeController()
-        {
-            client = new HttpClient();
-            
+        public HomeController () {
+            client = new HttpClient ();
+
             breaker = Policy
-            .Handle<Exception>()
-            .CircuitBreakerAsync(
-              exceptionsAllowedBeforeBreaking: 2,
-               durationOfBreak: TimeSpan.FromMinutes(1)
-           );
+                .Handle<Exception> ()
+                .CircuitBreakerAsync (
+                    exceptionsAllowedBeforeBreaking: 2,
+                    durationOfBreak: TimeSpan.FromMinutes (1)
+                );
 
             fallback = Policy<string>
-           .Handle<Exception>()
-           .FallbackAsync(cancellationToken => fallbackAction(),
-              ex => {
-            return Task.CompletedTask;
+                .Handle<Exception> ()
+                .FallbackAsync (cancellationToken => fallbackAction (),
+                    ex => {
+                        return Task.CompletedTask;
                     })
-            .WrapAsync(breaker);
+                .WrapAsync (breaker);
 
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var recommendationsTask = client.GetStringAsync("http://localhost:9001/recommendations/customer/1001");
-            var viewedItemsTask = client.GetStringAsync("http://52.224.136.196:9000/viewedItems/customer/1001");
-            var cartTask = client.GetStringAsync("http://52.191.234.203:9000/cart/customer/1001");
-            var customerTask = client.GetStringAsync("http://52.190.26.105:9000/customer/1001");
+        public async Task<IActionResult> Index () {
+            var recommendationsTask = fallback.ExecuteAsync (() => client.GetStringAsync ("http://localhost:9001/recommendations/customer/1001"));
+            var viewedItemsTask = client.GetStringAsync ("http://52.224.136.196:9000/viewedItems/customer/1001");
+            var cartTask = client.GetStringAsync ("http://52.191.234.203:9000/cart/customer/1001");
+            var customerTask = client.GetStringAsync ("http://52.190.26.105:9000/customer/1001");
 
-            var response = await Task.WhenAll(recommendationsTask, viewedItemsTask, cartTask, customerTask);
+            var response = await Task.WhenAll (recommendationsTask, viewedItemsTask, cartTask, customerTask);
 
-            CompositeModel model = new CompositeModel
-            {
-                Recommendations = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[0]),
-                ViewedItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[1]),
-                CartItems = JsonConvert.DeserializeObject<IEnumerable<Item>>(response[2]),
-                Customers = JsonConvert.DeserializeObject<IEnumerable<Customer>>(response[3])
+            CompositeModel model = new CompositeModel {
+                Recommendations = JsonConvert.DeserializeObject<IEnumerable<Item>> (response[0]),
+                ViewedItems = JsonConvert.DeserializeObject<IEnumerable<Item>> (response[1]),
+                CartItems = JsonConvert.DeserializeObject<IEnumerable<Item>> (response[2]),
+                Customers = JsonConvert.DeserializeObject<IEnumerable<Customer>> (response[3])
             };
-            return View(model);
+            return View (model);
         }
 
-        public Task<string> fallbackAction()
-        {
-            return Task.Run(() => "[" + JsonConvert.SerializeObject(new Item { id = "-1" }) + "]"); ;
+        public Task<string> fallbackAction () {
+            return Task.Run (() => "[" + JsonConvert.SerializeObject (new Item { id = "-1" }) + "]");;
         }
-       //fallback.ExecuteAsync(() => client.GetStringAsync("http://localhost:9001/recommendations/customer/1001"));
     }
 }
