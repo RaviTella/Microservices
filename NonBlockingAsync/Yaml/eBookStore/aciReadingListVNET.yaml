@@ -1,0 +1,83 @@
+apiVersion: 2018-10-01
+location: eastus
+name: ebookStoreAppContainerGroupVNET
+properties:
+  containers:
+  - name: recommendation-service
+    properties:
+      image: ravitella/recommendations:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 9000
+      
+  - name: viewhistory-service
+    properties:
+      image: ravitella/viewhistory:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 9001
+      
+  - name: customer-service
+      properties:
+        image: ravitella/customer:latest
+        resources:
+          requests:
+            cpu: 1
+            memoryInGb: 1
+        ports:
+      - port: 9002
+      
+  - name: cart-service
+    properties:
+      image: ravitella/cart:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 9003
+      
+  - name: membership-service
+    properties:
+      image: ravitella/membership:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 9004 
+      
+  - name: bookstore-webapp
+    properties:
+      image: ravitella/ebookstore:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1.5
+      environmentVariables:
+        - name: 'externalRestServices.recommendationService'
+          value: 'http://localhost:9001/recommendations/customer/1001'
+        - name: 'externalRestServices.viewedItemsService'
+          value: 'user'  
+        - name: 'externalRestServices.customerService'
+          value: 'password'
+        - name: 'externalRestServices.cartService'
+          value: 'http://localhost:8080/recommendations'
+      ports:
+      - port: 7070
+  osType: Linux
+  ipAddress:
+    type: Private
+    ports:
+    - protocol: tcp
+      port: '7070'
+  networkProfile:
+    id: /subscriptions/6e7ce629-5859-4837-bce5-571fe7b268c5/resourceGroups/rt-devdays_rg/providers/Microsoft.Network/networkProfiles/aci-network-profile-aci-vnet-public
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

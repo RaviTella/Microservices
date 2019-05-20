@@ -54,17 +54,20 @@ public class HomeController extends Controller {
             .onClose(() -> System.out.println("Closed"))
             .onHalfOpen(() -> System.out.println("Half Open"))
             .onOpen(() -> System.out.println("Open"));
-    this.retryPolicy =
-        new RetryPolicy<>()
-            .handle(TimeoutException.class)
-            .handle(ConnectException.class)
-            .withDelay(Duration.ofSeconds(1))
-            .withMaxRetries(3);
+
     this.fallback = Fallback.of(error());
+
+    this.retryPolicy =
+    new RetryPolicy<>()
+        .handle(TimeoutException.class)
+        .handle(ConnectException.class)
+        .withDelay(Duration.ofSeconds(1))
+        .withMaxRetries(3);
   }
 
   public CompletionStage<Result> index() {
     List<WSResponse> results = new ArrayList<>();
+
     CompletionStage<WSResponse> recommendationsCF =
         ws.url(config.getString("externalRestServices.recommendationService")).get();
     CompletionStage<WSResponse> viewedItemsCF =

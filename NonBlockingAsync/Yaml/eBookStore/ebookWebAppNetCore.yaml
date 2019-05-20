@@ -1,0 +1,22 @@
+apiVersion: 2018-10-01
+location: eastus
+name: ebookstoreNetCoreContainerGroup
+properties:
+  containers:
+  - name: ebookstore-webapp-netcore
+    properties:
+      image: ravitella/ebookstorenetcore:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 80
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: '80'
+tags: null
+type: Microsoft.ContainerInstance/containerGroups

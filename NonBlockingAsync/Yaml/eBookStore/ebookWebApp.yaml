@@ -1,0 +1,22 @@
+apiVersion: 2018-10-01
+location: eastus
+name: ebookstoreContainerGroup
+properties:
+  containers:
+  - name: ebookstore-webapp
+    properties:
+      image: ravitella/ebookstore:latest
+      resources:
+        requests:
+          cpu: 1
+          memoryInGb: 1
+      ports:
+      - port: 9000
+  osType: Linux
+  ipAddress:
+    type: Public
+    ports:
+    - protocol: tcp
+      port: '9000'
+tags: null
+type: Microsoft.ContainerInstance/containerGroups
