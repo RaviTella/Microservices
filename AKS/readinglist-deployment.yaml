@@ -11,12 +11,12 @@ spec:
     spec:
       containers:
       - name: web
-        image: ravitella/docker-springboot-readinglistapplication:latest
+        image: ravitella/readinglist-springboot-mysql:latest
         ports:
          - containerPort: 7070
         env:
          - name: SPRING_DATASOURCE_URL
-           value: jdbc:mysql://mysql:3306/readinglist?useSSL=false
+           value: jdbc:mysql://mysql:3306/readinglist?useSSL=false&allowPublicKeyRetrieval=true
          - name: SPRING_DATASOURCE_USERNAME
            value: user
          - name: SPRING_DATASOURCE_PASSWORD
