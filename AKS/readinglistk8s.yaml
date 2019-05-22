@@ -1,0 +1,83 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql/mysql-server:latest
+        ports:
+         - containerPort: 3306
+        env:
+         - name: MYSQL_ROOT_PASSWORD
+           value: password
+         - name: MYSQL_DATABASE
+           value: readinglist
+         - name: MYSQL_USER
+           value: user
+         - name: MYSQL_PASSWORD
+           value: password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: mysql
+  name: mysql
+spec:
+  ports:
+    # The port that this service should serve on.
+    - port: 3306
+  # Label keys and values that must match in order to receive traffic for this service.
+  selector:
+     run: mysql
+---     
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: web
+    spec:
+      containers:
+      - name: web
+        image: ravitella/readinglist-springboot-mysql:latest
+        ports:
+         - containerPort: 7070
+        env:
+         - name: SPRING_DATASOURCE_URL
+           value: jdbc:mysql://mysql:3306/readinglist?useSSL=false&allowPublicKeyRetrieval=true
+         - name: SPRING_DATASOURCE_USERNAME
+           value: user
+         - name: SPRING_DATASOURCE_PASSWORD
+           value: password
+      - name: api
+        image: ravitella/docker-springboot-recommendationservice:latest
+        ports:
+         - containerPort: 8080
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: web
+  name: web
+spec:
+  type: LoadBalancer
+  ports:
+    # The port that this service should serve on.
+    - port: 80
+      targetPort: 7070
+  # Label keys and values that must match in order to receive traffic for this service.
+  selector:
+     run: web
