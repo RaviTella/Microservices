@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using eBookStore.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -14,13 +15,16 @@ using Polly.Wrap;
 
 namespace eBookStore.Controllers {
     public class HomeController : Controller {
+         private IConfiguration _config;
         private static HttpClient client;
         private AsyncCircuitBreakerPolicy breaker;
         private AsyncPolicyWrap<string> fallback;
 
-        public HomeController () {
+        public HomeController (IConfiguration
+         config) {
             client = new HttpClient ();
-
+            client.Timeout = TimeSpan.FromSeconds(5);
+            _config = config;
             breaker = Policy
                 .Handle<Exception> ()
                 .CircuitBreakerAsync (
@@ -39,10 +43,10 @@ namespace eBookStore.Controllers {
         }
 
         public async Task<IActionResult> Index () {
-            var recommendationsTask = fallback.ExecuteAsync (() => client.GetStringAsync ("http://localhost:9001/recommendations/customer/1001"));
-            var viewedItemsTask = client.GetStringAsync ("http://52.224.136.196:9000/viewedItems/customer/1001");
-            var cartTask = client.GetStringAsync ("http://52.191.234.203:9000/cart/customer/1001");
-            var customerTask = client.GetStringAsync ("http://52.190.26.105:9000/customer/1001");
+            var recommendationsTask = fallback.ExecuteAsync (() => client.GetStringAsync(_config.GetValue<string>("externalRestServices:recommendationService")));
+            var viewedItemsTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:viewedItemsService"));
+            var cartTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:cartService"));
+            var customerTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:customerService"));
 
             var response = await Task.WhenAll (recommendationsTask, viewedItemsTask, cartTask, customerTask);
 

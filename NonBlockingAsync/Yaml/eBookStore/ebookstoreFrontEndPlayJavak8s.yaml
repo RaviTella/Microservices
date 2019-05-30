@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ebookstore-deployment
+  labels:
+    app: ebookstoreDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: ebookstore-pod 
+  template:
+    metadata:
+      labels:
+        run: ebookstore-pod
+    spec:
+      containers:
+      - name: ebookstore-container
+        image: ravitella/ebookstore:latest
+        imagePullPolicy: "Always"
+        ports:
+         - containerPort: 9000
+        env:
+         - name: RECOMMENDATION_SERVICE
+           value: http://recommendation-service:9001/recommendations/customer/1001
+         - name: CART_SERVICE
+           value: http://cart-service:9002/cart/customer/1001
+         - name: CUSTOMER_SERVICE
+           value: http://customer-service:9003/customer/1001
+         - name: MEMBERSHIP_SERVICE
+           value: http://membership-service:9004/membership/customer/1001
+         - name: VIEWEDITEMS_SERVICE
+           value: http://viewhistory-service:9005/viewedItems/customer/1001
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebookstore-service
+  labels:
+    name: ebookstoreService  
+spec:  
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 9000 
+  selector:
+    run: ebookstore-pod

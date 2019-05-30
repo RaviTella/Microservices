@@ -1,0 +1,183 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendation-deployment
+  labels:
+    app: recommendationDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: recommendation-pod 
+  template:
+    metadata:
+      labels:
+        run: recommendation-pod
+    spec:
+      containers:
+      - name: recommendation-container
+        image: ravitella/recommendations:latest
+        ports:
+         - containerPort: 9001
+         
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendation-service
+  labels:
+    name: recommendationService  
+spec:  
+  ports:
+    - port: 9001
+      targetPort: 9001 
+  selector:
+    run: recommendation-pod
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cart-deployment
+  labels:
+    app: cartDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: cart-pod 
+  template:
+    metadata:
+      labels:
+        run: cart-pod
+    spec:
+      containers:
+      - name: cart-container
+        image: ravitella/cart:latest
+        ports:
+         - containerPort: 9002
+         
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-service
+  labels:
+    name: cartService  
+spec:  
+  ports:
+    - port: 9002
+      targetPort: 9002 
+  selector:
+    run: cart-pod
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-deployment
+  labels:
+    app: customerDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: customer-pod 
+  template:
+    metadata:
+      labels:
+        run: customer-pod
+    spec:
+      containers:
+      - name: customer-container
+        image: ravitella/customer:latest
+        ports:
+         - containerPort: 9003
+         
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-service
+  labels:
+    name: customerService  
+spec:  
+  ports:
+    - port: 9003
+      targetPort: 9003 
+  selector:
+    run: customer-pod
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: membership-deployment
+  labels:
+    app: membershipDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: membership-pod 
+  template:
+    metadata:
+      labels:
+        run: membership-pod
+    spec:
+      containers:
+      - name: membership-container
+        image: ravitella/membership:latest
+        ports:
+         - containerPort: 9004
+         
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: membership-service
+  labels:
+    name: membershipService  
+spec:  
+  ports:
+    - port: 9004
+      targetPort: 9004 
+  selector:
+    run: membership-pod
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: viewhistory-deployment
+  labels:
+    app: viewhistoryDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: viewhistory-pod 
+  template:
+    metadata:
+      labels:
+        run: viewhistory-pod
+    spec:
+      containers:
+      - name: viewhistory-container
+        image: ravitella/viewhistory:latest
+        ports:
+         - containerPort: 9005
+         
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: viewhistory-service
+  labels:
+    name: viewhistoryService  
+spec:  
+  ports:
+    - port: 9005
+      targetPort: 9005 
+  selector:
+    run: viewhistory-pod
