@@ -18,7 +18,7 @@ variables:
   dockerRegistryServiceConnection: '539ea634-b284-4ea6-8d6c-4c75b48c1c58'
   imageRepository: 'ravitellaebookstorenetcorelatest'
   containerRegistry: 'rtcacr.azurecr.io'
-  dockerfilePath: 'Dockerfile'
+  dockerfilePath: 'NonBlockingAsync/NetCore/eBookStore/Dockerfile'
   tag: '$(Build.BuildId)'
   
   # Agent VM image name
