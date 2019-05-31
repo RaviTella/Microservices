@@ -20,10 +20,10 @@ variables:
   buildConfiguration: 'Release'
     # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '539ea634-b284-4ea6-8d6c-4c75b48c1c58'
-  imageRepository: 'ravitellaebookstorenetcorelatest'
+  imageRepository: 'ravitella/ebookstorenetcore'
   containerRegistry: 'rtcacr.azurecr.io'
   dockerfilePath: 'NonBlockingAsync/NetCore/eBookStore/Dockerfile'
-  tag: '$(Build.BuildId)'
+  tag: 'latest'
 
 steps:
 - script: dotnet build NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj --configuration $(buildConfiguration)
