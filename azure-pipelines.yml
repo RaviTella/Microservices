@@ -1,0 +1,39 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+ branches:
+  include:
+    - master
+ paths:
+   include:
+     - NonBlockingAsync/NetCore/eBookStore
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+  
+
+variables:
+  buildConfiguration: 'Release'
+    # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '539ea634-b284-4ea6-8d6c-4c75b48c1c58'
+  imageRepository: 'ravitellaebookstorenetcorelatest'
+  containerRegistry: 'rtcacr.azurecr.io'
+  dockerfilePath: 'NonBlockingAsync/NetCore/eBookStore/Dockerfile'
+  tag: '$(Build.BuildId)'
+
+steps:
+- script: dotnet build NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj --configuration $(buildConfiguration)
+  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+   command: buildAndPush
+   repository: $(imageRepository)
+   dockerfile: $(dockerfilePath)
+   containerRegistry: $(dockerRegistryServiceConnection)
+   tags: $(tag)  
