@@ -9,13 +9,10 @@ trigger:
      - NonBlockingAsync/NetCore/eBookStore
 
 pool:
-  vmImage: 'ubuntu-latest'
-
-  
+  vmImage: 'ubuntu-latest'  
 
 variables:
-  buildConfiguration: 'Release'
-    # Container registry service connection established during pipeline creation
+  buildConfiguration: 'Release'    
   dockerRegistryServiceConnection: '539ea634-b284-4ea6-8d6c-4c75b48c1c58'
   imageRepository: 'ravitella/ebookstorenetcore'
   containerRegistry: 'rtcacr.azurecr.io'
@@ -25,16 +22,11 @@ variables:
 steps:
 
 - task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
-
-- task: DotNetCoreCLI@2
   displayName: Build
   inputs:
-    command: build
+    command: publish
     projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
-    arguments: '--configuration Release' # Update this to match your need
+    arguments: '--configuration Release' 
 
 - task: CopyFiles@2
   inputs: 
