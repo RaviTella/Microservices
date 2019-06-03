@@ -24,7 +24,7 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
-    command: build
+    command: publish
     projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
     arguments: '--configuration Release' 
 
