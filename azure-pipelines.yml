@@ -26,6 +26,12 @@ steps:
 - script: dotnet build NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj --configuration $(buildConfiguration)
   displayName: 'dotnet build $(buildConfiguration)'
 
+- task: CopyFiles@2
+  inputs: 
+   sourceFolder:  $(Build.SourcesDirectory)
+   contents: NonBlockingAsync/Yaml/eBookStore/ebookstoreFrontEndNetCorek8s.YAML
+   targetFolder: $(Build.ArtifactStagingDirectory)
+    
 - task: Docker@2
   displayName: Build and push an image to container registry
   inputs:
