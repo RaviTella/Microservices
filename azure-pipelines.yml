@@ -40,3 +40,5 @@ steps:
    dockerfile: $(dockerfilePath)
    containerRegistry: $(dockerRegistryServiceConnection)
    tags: $(tag)  
+
+- task: PublishBuildArtifacts@1
