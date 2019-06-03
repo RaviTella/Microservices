@@ -9,9 +9,7 @@ trigger:
      - NonBlockingAsync/NetCore/eBookStore
 
 pool:
-  vmImage: 'ubuntu-latest'
-
-  
+  vmImage: 'ubuntu-latest'  
 
 variables:
   buildConfiguration: 'Release'
@@ -29,7 +27,7 @@ steps:
   inputs:
     command: build
     projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
-    arguments: '--configuration Release' # Update this to match your need
+    arguments: '--configuration Release' 
 
 - task: CopyFiles@2
   inputs: 
