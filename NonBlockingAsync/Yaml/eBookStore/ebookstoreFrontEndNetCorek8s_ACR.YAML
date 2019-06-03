@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ebookstorenetcore-deployment
+  labels:
+    app: ebookstoreNetCoreDeployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: ebookstoreNetCore-pod 
+  template:
+    metadata:
+      labels:
+        run: ebookstoreNetCore-pod
+    spec:
+      containers:
+      - name: ebookstorenetcore-container
+        image: rtcacr.azurecr.io/ravitella/ebookstorenetcore:latest
+        imagePullPolicy: "Always"
+        ports:
+         - containerPort: 80
+        env:
+         - name:  externalRestServices__recommendationService
+           value: http://recommendation-service:9001/recommendations/customer/1001
+         - name:  externalRestServices__cartService
+           value: http://cart-service:9002/cart/customer/1001
+         - name:  externalRestServices__customerService
+           value: http://customer-service:9003/customer/1001
+         - name:  externalRestServices__membershipService
+           value: http://membership-service:9004/membership/customer/1001
+         - name:  externalRestServices__viewedItemsService
+           value: http://viewhistory-service:9005/viewedItems/customer/1001
+---         
+apiVersion: v1
+kind: Service
+metadata:
+  name: ebookstorenetcore-service
+  labels:
+    name: ebookstoreNetCoreService  
+spec:  
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 80 
+  selector:
+    run: ebookstoreNetCore-pod
