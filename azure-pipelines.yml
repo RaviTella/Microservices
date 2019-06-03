@@ -29,7 +29,7 @@ steps:
 - task: CopyFiles@2
   inputs: 
    sourceFolder:  $(Build.SourcesDirectory)/NonBlockingAsync/Yaml/eBookStore
-   contents: ebookstoreFrontEndNetCorek8M.YAML
+   contents: ebookstoreFrontEndNetCorek8s.YAML
    targetFolder: $(Build.ArtifactStagingDirectory)
     
 - task: Docker@2
