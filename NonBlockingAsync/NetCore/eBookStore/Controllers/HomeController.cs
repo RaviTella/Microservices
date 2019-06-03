@@ -43,7 +43,7 @@ namespace eBookStore.Controllers {
         }
 
         public async Task<IActionResult> Index () {
-            //protected by circuit breaker
+            
             var recommendationsTask = fallback.ExecuteAsync (() => client.GetStringAsync(_config.GetValue<string>("externalRestServices:recommendationService")));
             var viewedItemsTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:viewedItemsService"));
             var cartTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:cartService"));
