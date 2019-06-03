@@ -23,8 +23,18 @@ variables:
   tag: 'latest'
 
 steps:
-- script: dotnet build NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj --configuration $(buildConfiguration)
-  displayName: 'dotnet build $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'restore'
+    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: build
+    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
+    arguments: '--configuration Release' # Update this to match your need
 
 - task: CopyFiles@2
   inputs: 
