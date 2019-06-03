@@ -29,7 +29,7 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
+    projects: 'NonBlockingAsync/NetCore/eBookStore/*.csproj'
     arguments: '--configuration Release' # Update this to match your need
 
 - task: CopyFiles@2
