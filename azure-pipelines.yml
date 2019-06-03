@@ -25,11 +25,6 @@ variables:
 steps:
 
 - task: DotNetCoreCLI@2
-  inputs:
-    command: 'restore'
-    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
-
-- task: DotNetCoreCLI@2
   displayName: Build
   inputs:
     command: build
