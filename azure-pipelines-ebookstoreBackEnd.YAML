@@ -1,0 +1,50 @@
+# ASP.NET Core
+
+trigger:
+ branches:
+  include:
+    - master
+ paths:
+   include:
+     - NonBlockingAsync/NetCore/eBookStore
+
+pool:
+  vmImage: 'ubuntu-latest'  
+
+variables:
+  buildConfiguration: 'Release'    
+  dockerRegistryServiceConnection: '539ea634-b284-4ea6-8d6c-4c75b48c1c58'
+  imageRepository: 'ravitella/ebookstorenetcore'
+  containerRegistry: 'rtcacr.azurecr.io'
+  dockerfilePath: 'NonBlockingAsync/NetCore/eBookStore/Dockerfile'
+  tag: 'latest'
+
+steps:
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: publish
+    projects: 'NonBlockingAsync/NetCore/eBookStore/eBookStore.csproj'
+    arguments: '--configuration Release' 
+    zipAfterPublish: false
+
+- task: CopyFiles@2
+  inputs: 
+   sourceFolder:  $(Build.SourcesDirectory)/NonBlockingAsync/Yaml/eBookStore
+   contents: ebookstoreFrontEndNetCorek8s_ACR.YAML
+   targetFolder: $(Build.ArtifactStagingDirectory)
+    
+- task: Docker@2
+  displayName: Build and push an image to container registry
+  inputs:
+   command: buildAndPush
+   repository: $(imageRepository)
+   dockerfile: $(dockerfilePath)
+   containerRegistry: $(dockerRegistryServiceConnection)
+   tags: $(tag)  
+
+- task: PublishBuildArtifacts@1
+  inputs:    
+    pathtoPublish: $(Build.ArtifactStagingDirectory)
+    artifactName: YAML
