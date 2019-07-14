@@ -20,10 +20,12 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import static play.libs.Scala.asScala;
 
@@ -66,61 +68,61 @@ public class HomeController extends Controller {
     }
 
     public CompletionStage<Result> index() {
-        List<WSResponse> results = new ArrayList<>();
 
-        CompletionStage<WSResponse> recommendationsCF =
-                ws.url(config.getString("externalRestServices.recommendationService")).get();
-        CompletionStage<WSResponse> viewedItemsCF =
-                ws.url(config.getString("externalRestServices.viewedItemsService")).get();
-        CompletionStage<WSResponse> customerCF =
-                ws.url(config.getString("externalRestServices.customerService")).get();
-        CompletionStage<WSResponse> cartCF =
-                ws.url(config.getString("externalRestServices.cartService")).get();
+        CompletableFuture<List<Item>> recommendationsCF =
+                getCompletableFuture("externalRestServices.recommendationService", Item.class);
+        CompletableFuture<List<Item>> viewedItemsCF =
+                getCompletableFuture("externalRestServices.viewedItemsService",Item.class);
+        CompletableFuture<List<Customer>> customerCF =
+                getCompletableFuture("externalRestServices.customerService",Customer.class);
+        CompletableFuture<List<Item>> cartCF =
+                getCompletableFuture("externalRestServices.cartService",Item.class);
 
-        return recommendationsCF
-                .thenCombineAsync(
-                        viewedItemsCF,
-                        (recommendations, viewedItems) -> {
-                            results.add(recommendations);
-                            results.add(viewedItems);
-                            return results;
-                        })
-                .thenCombineAsync(
-                        customerCF,
-                        (res, customers) -> {
-                            res.add(customers);
-                            return res;
-                        })
-                .thenCombineAsync(
-                        cartCF,
-                        (res, cartItems) -> ok(
-                                views.html.home.render(
-                                        convertToObject(res.get(0).asJson().toString(), Item.class),
-                                        convertToObject(res.get(1).asJson().toString(), Item.class),
-                                        convertToObject(res.get(2).asJson().toString(), Customer.class),
-                                        convertToObject(cartItems.asJson().toString(), Item.class))),
-                        httpExecutionContext.current());
+      return  CompletableFuture.allOf(recommendationsCF,viewedItemsCF,customerCF,cartCF).thenApply((voidcf) -> ok(
+                views.html.home.render(
+                        recommendationsCF.join(),
+                        viewedItemsCF.join(),
+                        customerCF.join(),
+                        cartCF.join())
+        ));
+
     }
 
+    private <S> CompletableFuture<List<S>> getCompletableFuture(String s, Class<S> c) {
+        return ws
+                .url(config.getString(s))
+                .get().thenApply(l -> convertToObject(l.asJson().toString(),c))
+                .toCompletableFuture();
+    }
+
+
     public CompletionStage<Result> failsafe() {
-        return Failsafe.with(this.fallback, this.breaker)
+
+        return Failsafe
+                .with(this.fallback, this.breaker)
                 .getStageAsync(
                         () -> {
                             System.out.println("###TRY###");
-                            return ws.url(config.getString("externalRestServices.recommendationService"))
+                            return ws
+                                    .url(config.getString("externalRestServices.recommendationService"))
                                     .setRequestTimeout(Duration.ofSeconds(5))
                                     .get();
                         })
                 .thenApplyAsync(
                         wsResponse -> {
-                            if (wsResponse.asJson().toString().equals(fallbackMessage)) {
+                            if (wsResponse
+                                    .asJson()
+                                    .toString()
+                                    .equals(fallbackMessage)) {
                                 return ok(views.html.home1.render(new Response<Item>("fallback", new ArrayList())));
                             } else {
                                 return ok(
                                         views.html.home1.render(
                                                 new Response<Item>(
                                                         "original",
-                                                        convertToObject(wsResponse.asJson().toString(), Item.class))));
+                                                        convertToObject(wsResponse
+                                                                .asJson()
+                                                                .toString(), Item.class))));
                             }
                         },
                         httpExecutionContext.current());
@@ -128,8 +130,12 @@ public class HomeController extends Controller {
 
 
     private WSResponse error() {
+
         final WSResponse wsResponseMock = Mockito.mock(WSResponse.class);
-        Mockito.doReturn(200).when(wsResponseMock).getStatus();
+        Mockito
+                .doReturn(200)
+                .when(wsResponseMock)
+                .getStatus();
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = null;
         try {
@@ -137,12 +143,14 @@ public class HomeController extends Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Mockito.doReturn(jsonNode).when(wsResponseMock).asJson();
+        Mockito
+                .doReturn(jsonNode)
+                .when(wsResponseMock)
+                .asJson();
 
         return wsResponseMock;
     }
 
-    ;
 
     public <T> List<T> convertToObject(String jsonString, Class<T> c) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -150,7 +158,9 @@ public class HomeController extends Controller {
         try {
             books =
                     objectMapper.readValue(
-                            jsonString, objectMapper.getTypeFactory().constructCollectionType(List.class, c));
+                            jsonString, objectMapper
+                                    .getTypeFactory()
+                                    .constructCollectionType(List.class, c));
 
         } catch (IOException e) {
             e.printStackTrace();
