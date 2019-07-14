@@ -78,13 +78,13 @@ public class HomeController extends Controller {
         CompletableFuture<List<Item>> cartCF =
                 getCompletableFuture("externalRestServices.cartService",Item.class);
 
-      return  CompletableFuture.allOf(recommendationsCF,viewedItemsCF,customerCF,cartCF).thenApply((voidcf) -> ok(
+      return  CompletableFuture.allOf(recommendationsCF,viewedItemsCF,customerCF,cartCF).thenApplyAsync((voidcf) -> ok(
                 views.html.home.render(
                         recommendationsCF.join(),
                         viewedItemsCF.join(),
                         customerCF.join(),
                         cartCF.join())
-        ));
+        ), httpExecutionContext.current());
 
     }
 
