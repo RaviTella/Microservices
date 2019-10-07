@@ -16,15 +16,15 @@ using Polly.Wrap;
 namespace eBookStore.Controllers {
     public class HomeController : Controller {
          private IConfiguration _config;
-        private static HttpClient client;
+        private static HttpClient _client;
+       // private IHttpClientFactory _clientFactory;
         private AsyncCircuitBreakerPolicy breaker;
         private AsyncPolicyWrap<string> fallback;
 
         public HomeController (IConfiguration
-         config) {
-            client = new HttpClient ();
-            client.Timeout = TimeSpan.FromSeconds(5);
+         config, IHttpClientFactory clientFactory ) {          
             _config = config;
+            _client= clientFactory.CreateClient();
             breaker = Policy
                 .Handle<Exception> ()
                 .CircuitBreakerAsync (
@@ -44,10 +44,10 @@ namespace eBookStore.Controllers {
 
         public async Task<IActionResult> Index () {
             
-            var recommendationsTask = fallback.ExecuteAsync (() => client.GetStringAsync(_config.GetValue<string>("externalRestServices:recommendationService")));
-            var viewedItemsTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:viewedItemsService"));
-            var cartTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:cartService"));
-            var customerTask = client.GetStringAsync(_config.GetValue<string>("externalRestServices:customerService"));
+            var recommendationsTask = fallback.ExecuteAsync (() => _client.GetStringAsync(_config.GetValue<string>("externalRestServices:recommendationService")));
+            var viewedItemsTask = _client.GetStringAsync(_config.GetValue<string>("externalRestServices:viewedItemsService"));
+            var cartTask = _client.GetStringAsync(_config.GetValue<string>("externalRestServices:cartService"));
+            var customerTask = _client.GetStringAsync(_config.GetValue<string>("externalRestServices:customerService"));
 
             var response = await Task.WhenAll (recommendationsTask, viewedItemsTask, cartTask, customerTask);
 

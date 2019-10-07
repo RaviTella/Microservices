@@ -19,7 +19,7 @@ spec:
         image: ravitella/ebookstorenetcore:latest
         imagePullPolicy: "Always"
         ports:
-         - containerPort: 80
+         - containerPort: 80        
         env:
          - name:  externalRestServices__recommendationService
            value: http://recommendation-service:9001/recommendations/customer/1001
