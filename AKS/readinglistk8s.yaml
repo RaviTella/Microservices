@@ -61,6 +61,8 @@ spec:
            value: user
          - name: SPRING_DATASOURCE_PASSWORD
            value: password
+         - name: SERVER_SERVLET_CONTEXT_PATH
+           value: /rt
       - name: api
         image: ravitella/docker-springboot-recommendationservice:latest
         ports:

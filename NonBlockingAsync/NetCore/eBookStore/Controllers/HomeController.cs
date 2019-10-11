@@ -28,7 +28,7 @@ namespace eBookStore.Controllers {
             breaker = Policy
                 .Handle<Exception> ()
                 .CircuitBreakerAsync (
-                    exceptionsAllowedBeforeBreaking: 2,
+                    exceptionsAllowedBeforeBreaking: 3,
                     durationOfBreak: TimeSpan.FromMinutes (1)
                 );
 
